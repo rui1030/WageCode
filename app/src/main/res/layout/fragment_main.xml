@@ -1,0 +1,17 @@
+<WebView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frag_main_root"
+    android:layout_width="1920dp"
+    android:layout_height="1080dp"
+    tools:context="com.dffc.wp.MainFragment"/>
+
+
+<!--<TextView xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:id="@+id/frag_main_root"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context="com.dffc.wp.MainFragment"-->
+    <!--android:text="ZZZZZZ"-->
+    <!--android:textSize="40sp"-->
+    <!--/>-->
