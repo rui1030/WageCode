@@ -15,20 +15,38 @@ public class ConfigUtil {
 
     private static final String PATH = "/sdcard/wage.config";
 
-    public static String URL = "";
+    public static String H5URL = "";
+    public static String UPLOAD_URL = "";
 
     public static void initConfig(){
         BufferedReader br = null;
 
         try {
             br = new BufferedReader(new FileReader(PATH));
-            String line = br.readLine();
-            URL = line.split("=")[1];
-            Log.d(TAG, "URL=>" + URL);
+            String line = null;
+            while ((line = br.readLine()) != null){
+                String[] arr = line.split("=");
+                if("h5url".equalsIgnoreCase(arr[0])){
+                    H5URL = arr[1];
+                }else if("uploadUrl".equalsIgnoreCase(arr[0])){
+                    UPLOAD_URL = arr[1];
+                }
+            }
+            Log.d(TAG, "H5URL=>" + H5URL + ",UPLOAD_URL=>" + UPLOAD_URL);
+            br.close();
+            br = null;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (br != null){
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

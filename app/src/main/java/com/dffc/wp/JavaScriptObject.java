@@ -12,6 +12,7 @@ import com.dffc.wp.net.ResponseEntity;
 import com.dffc.wp.okhttpdownload.OkHttpDownUpUtil;
 import com.dffc.wp.okhttpdownload.Progress;
 import com.dffc.wp.okhttpdownload.UploadListener;
+import com.dffc.wp.util.ConfigUtil;
 import com.dffc.wp.util.JsonUtils;
 
 import org.json.JSONArray;
@@ -24,6 +25,7 @@ import org.xutils.x;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import okhttp3.Response;
 
@@ -40,44 +42,57 @@ public class JavaScriptObject {
 
     String pathUpload = "";
 
+    private String udiskBaseDir;
+
     public JavaScriptObject(Context mContxt, WebView webView) {
         this.mContxt = mContxt;
         this.webView = webView;
+        uploadUrl = ConfigUtil.UPLOAD_URL;
+        initUdiskDir();
     }
 
     @JavascriptInterface //sdk17版本以上加上注解
     public String chooseExcel() {
+        initUdiskDir();
+
         JSONObject result = new JSONObject();
 
-        try{
-            String dirPath = "/storage/udisk/kingston/excel";
-//            String dirPath = "/sdcard/excel";
-            File dir = new File(dirPath);
-            if(!dir.exists()){
-                result.put("status", false);
-                result.put("error", dirPath + " doesn't exits");
-            }else {
-                result.put("status", true);
-                result.put("error", "");
-
-                String[] fileArr = dir.list();
-                JSONArray jsonArray = new JSONArray();
-
-                for (String filename : fileArr) {
-                    JSONObject object = new JSONObject();
-                    object.put("filename", filename);
-                    object.put("filepath", dir.getAbsolutePath() + "/" + filename);
-                    jsonArray.put(object);
-                }
-
-                result.put("result", jsonArray);
-            }
-        }catch (Exception e){
+        if(TextUtils.isEmpty(udiskBaseDir)){
             try {
                 result.put("status", false);
-                result.put("error", e.getMessage());
-            } catch (JSONException e1) {
-                e1.printStackTrace();
+                result.put("error",  " please ensure just input one udisk");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }else{
+            try{
+                File dir = new File(udiskBaseDir);
+                if(!dir.exists()){
+                    result.put("status", false);
+                    result.put("error", udiskBaseDir + " doesn't exits");
+                }else {
+                    result.put("status", true);
+                    result.put("error", "");
+
+                    String[] fileArr = dir.list();
+                    JSONArray jsonArray = new JSONArray();
+
+                    for (String filename : fileArr) {
+                        JSONObject object = new JSONObject();
+                        object.put("filename", filename);
+                        object.put("filepath", dir.getAbsolutePath() + "/" + filename);
+                        jsonArray.put(object);
+                    }
+
+                    result.put("result", jsonArray);
+                }
+            }catch (Exception e){
+                try {
+                    result.put("status", false);
+                    result.put("error", e.getMessage());
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
@@ -96,15 +111,26 @@ public class JavaScriptObject {
                     webView.loadUrl("javascript:uploadResult('" + filepath + "','false', 'path is null')");
                 }
             });
+            return;
         }
         upload();
     }
 
     public void upload(){
         RequestParams params = new RequestParams(uploadUrl);
-        params.addBodyParameter("file", new File(pathUpload));
-        params.addBodyParameter("transferType", "10");
-        params.addBodyParameter("fileFileName", "1.xls");
+//        params.setConnectTimeout(100 * 1000);
+        File uploadFile = new File(pathUpload);
+        Log.d(TAG, "uploadFile=>" + pathUpload + ", pathUpload=>" + uploadFile.exists());
+
+        params.setMultipart(true);
+        params.addBodyParameter("file", uploadFile);
+        params.addBodyParameter("transferType", "01");
+
+        String fileName = pathUpload.substring(pathUpload.lastIndexOf("/") + 1, pathUpload.length());
+        params.addBodyParameter("fileFileName", fileName);
+        params.addBodyParameter("userId", "1");
+
+        Log.d(TAG, "params=>" + params.toString());
 
         Callback.Cancelable cancelable
                 = x.http().post(params, new Callback.CommonCallback<ResponseEntity>(){
@@ -142,6 +168,16 @@ public class JavaScriptObject {
 
             }
         });
+    }
+
+    private void initUdiskDir(){
+        File baseDir = new File("/storage/udisk");
+        File[] arr = baseDir.listFiles();
+        if(arr != null && arr.length == 1){
+            udiskBaseDir = arr[0].getAbsolutePath() + "/excel";
+        }
+
+        Log.d(TAG, "udiskBaseDir=>" + udiskBaseDir);
     }
 
 //    private void okhttpUpload(){

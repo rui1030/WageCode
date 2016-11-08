@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class MainFragment extends Fragment {
+    private static final String TAG = "MainFragment";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -107,8 +110,9 @@ public class MainFragment extends Fragment {
                 return true;
             }
         });
-        fragMainRoot.loadUrl("http://192.168.70.104:80/demo.html");
-//        fragMainRoot.loadUrl(ConfigUtil.URL);
+        Log.d(TAG, "will load url " + ConfigUtil.H5URL);
+//        fragMainRoot.loadUrl("http://192.168.30.33:80/demo.html");
+        fragMainRoot.loadUrl(ConfigUtil.H5URL);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
